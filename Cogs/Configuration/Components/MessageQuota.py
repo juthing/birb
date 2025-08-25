@@ -293,7 +293,8 @@ class RoleQuotaModal(discord.ui.Modal):
         self.author = author
         self.Role = Role
         self.RoleQuota = discord.ui.TextInput(
-            label="Quota", placeholder="What should the quota be for this role?"
+            label="Quota",
+            placeholder="What should the quota be for this role? (Messages)",
         )
         self.add_item(self.RoleQuota)
 
@@ -306,6 +307,15 @@ class RoleQuotaModal(discord.ui.Modal):
                 ),
                 ephemeral=True,
             )
+
+        try:
+            int(self.RoleQuota.value)
+        except (ValueError, TypeError):
+            return await interaction.followup.send(
+                content=f"{redx} **{interaction.user.display_name},** please enter a valid number.",
+                ephemeral=True,
+            )
+
         config = await interaction.client.db["Config"].find_one(
             {"_id": interaction.guild.id}
         )
@@ -390,40 +400,37 @@ class MessageQuota(discord.ui.Modal, title="Message Quota"):
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
-
             return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
         try:
-            Config = await interaction.client.config.find_one(
-                {"_id": interaction.guild.id}
+            int(self.Quota.value)
+        except (ValueError, TypeError):
+            return await interaction.followup.send(
+                content=f"{redx} **{interaction.user.display_name},** please enter a valid number.",
+                ephemeral=True,
             )
-            if not Config:
-                Config = {"Message Quota": {}, "_id": interaction.guild.id}
-            if not Config.get("Message Quota"):
-                Config["Message Quota"] = {}
-            Config["Message Quota"]["quota"] = int(self.Quota.value)
-            await interaction.client.config.update_one(
-                {"_id": interaction.guild.id}, {"$set": Config}, upsert=True
+        Config = await interaction.client.config.find_one({"_id": interaction.guild.id})
+        if not Config:
+            Config = {"Message Quota": {}, "_id": interaction.guild.id}
+        if not Config.get("Message Quota"):
+            Config["Message Quota"] = {}
+        Config["Message Quota"]["quota"] = int(self.Quota.value)
+        await interaction.client.config.update_one(
+            {"_id": interaction.guild.id}, {"$set": Config}, upsert=True
+        )
+        Updated = await interaction.client.config.find_one(
+            {"_id": interaction.guild.id}
+        )
+        await interaction.edit_original_response(content="")
+        try:
+            await self.message.edit(
+                embed=await MessageQuotaEmbed(
+                    interaction,
+                    Updated,
+                    discord.Embed(color=discord.Color.dark_embed()),
+                ),
             )
-            Updated = await interaction.client.config.find_one(
-                {"_id": interaction.guild.id}
-            )
-            await interaction.edit_original_response(content="")
-            try:
-                await self.message.edit(
-                    embed=await MessageQuotaEmbed(
-                        interaction,
-                        Updated,
-                        discord.Embed(color=discord.Color.dark_embed()),
-                    ),
-                )
-            except:
-                pass
-        except ValueError:
-            embed = discord.Embed(
-                description=f"{redx} **{interaction.user.display_name},** please enter a valid number.",
-                color=discord.Colour.brand_red(),
-            )
-            await interaction.followup.send(embed=embed, ephemeral=True)
+        except:
+            pass
 
 
 class AutoActivity(discord.ui.Select):
