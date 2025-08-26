@@ -591,7 +591,7 @@ class quota(commands.Cog):
             MessageCount = user.get("message_count", 0)
             Messages = f"• `{MessageCount}` messages" if MessageCount else ""
 
-            entry = f"> **{member.mention}** {Messages}{Name}".strip()
+            entry = f"> **{member.mention}** {Messages}{Name[:20]}".strip()
 
             if loa_role_id and any(role.id == loa_role_id for role in member.roles):
                 on_loa.append(entry)
@@ -624,7 +624,6 @@ class quota(commands.Cog):
             passedembed.description = "\n".join(passed)
         else:
             passedembed.description = "> No users passed the quota."
-
         loaembed = discord.Embed(title="On LOA", color=discord.Color.purple())
         loaembed.set_image(url="https://www.astrobirb.dev/invisble.png")
         if on_loa:
@@ -639,6 +638,10 @@ class quota(commands.Cog):
         else:
             failedembed.description = "> No users failed the quota."
 
+        failedembed.description = failedembed.description[:4096]
+        loaembed.description = loaembed.description[:4096]
+        passedembed.description = passedembed.description[:4096]
+        
         await msg.edit(embeds=[passedembed, loaembed, failedembed])
 
     def GetQuota(self, member: discord.Member, config: dict) -> int:
