@@ -382,73 +382,65 @@ class Modmail(commands.Cog):
             Server = await self.client.fetch_guild(Modmail.get("guild_id"))
             if not Server:
                 return await ctx.send(
-                    content=f"{no} **{ctx.author.display_name},** no idea how but the guild can't be found from the modmail????"
+                    content=f"{no} **{ctx.author.display_name},** no idea how but the guild can't be found from the modmail."
                 )
             user = await self.client.fetch_user(Modmail.get("user_id"))
             if not user:
                 return await ctx.send(
-                    content=f"{no} **{ctx.author.display_name},** the user can't be found from the modmail????"
+                    content=f"{no} **{ctx.author.display_name},** the user can't be found from the modmail."
                 )
-            author_name = "Anonymous" if annonymous else ctx.author.name
-
+            AuthorName = "Anonymous" if annonymous else ctx.author.name
+            EmDescription = f"```{content}```" if content else ""
             embed = discord.Embed(
                 color=discord.Color.dark_embed(),
-                title=f"**(Staff)** {author_name}",
-                description=f"```{content}```",
+                title=f"**(Staff)** {AuthorName}",
+                description=EmDescription,
             )
             embed.set_author(name=Server.name, icon_url=Server.icon)
             embed.set_thumbnail(url=Server.icon)
-            if Config.get("Module Options", {}):
-                if Config.get("Module Options").get("MessageFormatting") == "Messages":
-                    try:
+            try:
+                if (
+                    Config.get("Module Options", {}).get("MessageFormatting")
+                    == "Messages"
+                ):
+                    if media:
+                        file = await media.to_file()
                         await ctx.channel.send(
-                            f"<:messagereceived:1201999712593383444> **(Staff)** {author_name}: {content}"
+                            f"<:messagereceived:1201999712593383444> **(Staff)** {AuthorName}: {content}",
+                            file=file,
                         )
                         await user.send(
-                            f"<:messagereceived:1201999712593383444> **(Staff)** {author_name}: {content}"
+                            f"<:messagereceived:1201999712593383444> **(Staff)** {AuthorName}: {content}",
+                            file=file,
                         )
-                    except (discord.Forbidden, discord.HTTPException):
-                        await ctx.send(
-                            f"{no} **{ctx.author.display_name},** I can't send a message to this user.",
-                            ephemeral=True,
-                        )
-                        return
-                    if ctx.interaction:
-                        return await ctx.message.delete()
                     else:
-                        return await ctx.send(
-                            content=f"{tick} **{ctx.author.display_name}**, I've sent the message to the user.",
-                            ephemeral=True,
+                        await ctx.channel.send(
+                            f"<:messagereceived:1201999712593383444> **(Staff)** {AuthorName}: {content}"
                         )
-
-            try:
-                if media:
-                    file = await media.to_file()
-                    try:
+                        await user.send(
+                            f"<:messagereceived:1201999712593383444> **(Staff)** {AuthorName}: {content}"
+                        )
+                else:
+                    if media:
+                        file = await media.to_file()
                         await user.send(embed=embed, file=file)
                         await ctx.channel.send(embed=embed, file=file)
-                    except (discord.Forbidden, discord.HTTPException):
-                        await ctx.send(
-                            f"{no} **{ctx.author.display_name},** I can't send a message to this user.",
-                            ephemeral=True,
-                        )
-                else:
-                    try:
+                    else:
                         await user.send(embed=embed)
                         await ctx.channel.send(embed=embed)
-                    except (discord.Forbidden, discord.HTTPException):
-                        await ctx.send(
-                            f"{no} **{ctx.author.display_name},** I can't send a message to this user.",
-                            ephemeral=True,
-                        )
+
                 if ctx.interaction:
                     await ctx.send(
-                        content=f"{tick} **{ctx.author.display_name},** i've sent the message."
+                        content=f"{tick} **{ctx.author.display_name},** I've sent the message to the user.",
+                        ephemeral=True,
                     )
                 else:
-                    await ctx.message.delete()
+                    try:
+                        await ctx.message.delete()
+                    except Exception:
+                        pass
 
-            except discord.Forbidden:
+            except (discord.Forbidden, discord.HTTPException):
                 await ctx.send(
                     f"{no} **{ctx.author.display_name},** I can't send a message to this user.",
                     ephemeral=True,

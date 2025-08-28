@@ -105,7 +105,6 @@ class Infractions(commands.Cog):
         anonymous: Optional[Literal["True"]] = None,
     ):
         if not await premium(ctx.guild.id):
-            view = PRemium()
             return await ctx.send(embed=NoPremium(), view=Support())
         if not await ModuleCheck(ctx.guild.id, "infractions"):
             await ctx.send(
@@ -170,8 +169,6 @@ class Infractions(commands.Cog):
         TypeActions = await self.client.db["infractiontypeactions"].find_one(
             {"guild_id": ctx.guild.id, "name": action}
         )
-
-
         if not await self.TypePerms(ctx.author, TypeActions):
             return await ctx.send(
                 f"{no} **{ctx.author.display_name},** you don't have permission to use this shift type."
@@ -192,7 +189,6 @@ class Infractions(commands.Cog):
             and Config.get("Infraction", {}).get("Approval", {}).get("channel")
             is not None
         )
-
         msg = await ctx.send(
             content=f"<a:Loading:1167074303905386587> **{ctx.author.display_name},** hold on while I infract this staff member.",
         )
@@ -451,15 +447,12 @@ class Infractions(commands.Cog):
             "guild_id": ctx.guild.id,
             **({"staff": staff.id} if staff else {}),
             "voided": (
-            True
-            if scope == "Voided"
-            else {"$ne": True} if scope != "Expired" else None
+                True
+                if scope == "Voided"
+                else {"$ne": True} if scope != "Expired" else None
             ),
             "expired": True if scope == "Expired" else None,
-            "$or": [
-                {"ApprovalStatus": {"$exists": False}},
-                {"ApprovalStatus": False}
-            ]
+            "$or": [{"ApprovalStatus": {"$exists": False}}, {"ApprovalStatus": False}],
         }
         filter = {k: v for k, v in filter.items() if v is not None}
 
@@ -1035,34 +1028,6 @@ class UpdateAction(discord.ui.Select):
             embed=await InfractionEmbed(interaction.client, self.infraction),
             view=ManageInfraction(self.infraction, self.author),
         )
-
-
-class PRemium(discord.ui.View):
-    def __init__(self):
-        super().__init__()
-        self.add_item(
-            discord.ui.Button(
-                label="Premium",
-                emoji="<:Tip:1223062864793702431>",
-                style=discord.ButtonStyle.link,
-                url="https://patreon.com/astrobirb/membership",
-            )
-        )
-
-
-class InfractionIssuer(discord.ui.View):
-    def __init__(self):
-        super().__init__()
-
-    @discord.ui.button(
-        label=f"",
-        style=discord.ButtonStyle.grey,
-        disabled=True,
-        emoji="<:flag:1223062579346145402>",
-    )
-    async def issuer(self, interaction: discord.Interaction, button: discord.ui.Button):
-        pass
-
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Infractions(client))

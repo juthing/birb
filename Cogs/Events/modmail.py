@@ -61,7 +61,6 @@ async def Close(interaction: discord.Interaction, reason=None):
     msg = await interaction.followup.send(
         content="<a:Loading:1167074303905386587> Closing..."
     )
-    # // Commit Modmail Discovery QWEo0p9;aSJDOPAHJSOp'd
     if isinstance(interaction.channel, discord.DMChannel):
         Modmail = await interaction.client.db["modmail"].find_one(
             {"user_id": interaction.user.id}
@@ -77,7 +76,7 @@ async def Close(interaction: discord.Interaction, reason=None):
     Server = await interaction.client.fetch_guild(Modmail.get("guild_id"))
     if not Server:
         return await msg.edit(
-            content=f"{no} **{interaction.user.display_name},** no idea how but the guild can't be found from the modmail????"
+            content=f"{no} **{interaction.user.display_name},** no idea how but the guild can't be found from the modmail."
         )
     Config = await interaction.client.config.find_one({"_id": Server.id})
     if not Config:
@@ -93,8 +92,6 @@ async def Close(interaction: discord.Interaction, reason=None):
 
     channelcreated = f"{channel.created_at.strftime('%d/%m/%Y')}"
     TranscriptID = random.randint(100, 50000)
-
-    # // Commit Modmail Extermination
     await interaction.client.db["modmail"].delete_one({"user_id": interaction.user.id})
     if channel and ModmailType == "channel":
         Text = ""
