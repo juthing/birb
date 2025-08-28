@@ -646,7 +646,16 @@ class ManageTypes(discord.ui.Select):  # Infraction Types
             return await interaction.response.send_message(
                 embed=NotYourPanel(), ephemeral=True
             )
-
+        config = await interaction.client.config.find_one({"_id": interaction.guild.id})
+        options = []
+        Types = config.get("Infraction", {}).get("types")
+        if Types:
+            seen = set()
+            options = []
+            for t in Types:
+                if t not in seen:
+                    options.append(discord.SelectOption(label=t, value=t))
+                    seen.add(t)
         selection = self.values[0]
         if selection == "Add":
             await interaction.response.send_modal(
@@ -654,18 +663,21 @@ class ManageTypes(discord.ui.Select):  # Infraction Types
             )
             return
         elif selection == "Edit":
+
             await interaction.response.send_modal(
-                InfractionTypeModal(interaction.user, "edit", self.message)
+                InfractionTypeModal(
+                    interaction.user, "edit", self.message, options=options
+                )
             )
             return
 
         elif selection == "Remove":
-            config = await interaction.client.config.find_one(
-                {"_id": interaction.guild.id}
-            )
+
             if config.get("Infraction", {}).get("types") is not None:
                 await interaction.response.send_modal(
-                    InfractionTypeModal(interaction.user, "remove", self.message)
+                    InfractionTypeModal(
+                        interaction.user, "remove", self.message, options=options
+                    )
                 )
                 return
 
@@ -685,22 +697,53 @@ class InfractionTypeModal(discord.ui.Modal, title="Infraction Type"):
         author: discord.Member,
         type: str,
         message: discord.Message = None,
+        options: list = None,
     ):
         super().__init__()
         self.author = author
         self.type = type
         self.message = message
-        self.name = discord.ui.TextInput(
-            label=f"{'Add' if type == 'add' else 'Edit' if type == 'edit' else 'Remove'} Infraction Type",
-            placeholder="Example: Warning, Strike, Activity Notice",
-            required=True,
-        )
+        self.options = options
+
+        Text = "Infraction Type"
+        if self.type == "add":
+            self.name = discord.ui.Label(
+                description="Example: Warning, Strike, Activity Notice",
+                text=Text,
+                component=discord.ui.TextInput(
+                    required=True,
+                    max_length=50,
+                )
+            )
+        else:
+            self.name = discord.ui.Label(
+                description="Choose an existing infraction type",
+                text=Text,
+                component=(
+                    discord.ui.Select(
+                        options=self.options or [],
+                        min_values=1,
+                        max_values=1,
+                        disabled=True if self.options is None or len(self.options) == 0 else False,
+
+                    )
+                )
+            )
         self.add_item(self.name)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
             return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
+        
+        Value = ""
+        if self.type == "add":
+            assert isinstance(self.name.component, discord.ui.TextInput)
+            Value = self.name.component.value
+        else:
+            assert isinstance(self.name.component, discord.ui.Select)
+            Value = self.name.component.values[0]
+        print(Value)
 
         config = await interaction.client.config.find_one({"_id": interaction.guild.id})
         if config is None:
@@ -718,17 +761,17 @@ class InfractionTypeModal(discord.ui.Modal, title="Infraction Type"):
         if self.type == "add":
             if config.get("Infraction").get("types") is None:
                 config["Infraction"]["types"] = []
-            config["Infraction"]["types"].append(self.name.value)
+            config["Infraction"]["types"].append(Value)
         elif self.type == "remove":
 
             if config.get("Infraction").get("types") is not None:
-                if not self.name.value in config.get("Infraction").get("types"):
+                if not Value in config.get("Infraction").get("types"):
                     embed = discord.Embed(
                         description=f"{redx} **{interaction.user.display_name},** this infraction type doesn't exist.",
                         color=discord.Colour.brand_red(),
                     )
                     return await interaction.followup.send(embed=embed, ephemeral=True)
-                config["Infraction"]["types"].remove(self.name.value)
+                config["Infraction"]["types"].remove(Value)
         view = discord.ui.View()
         await interaction.client.config.update_one(
             {"_id": interaction.guild.id}, {"$set": config}
@@ -738,20 +781,20 @@ class InfractionTypeModal(discord.ui.Modal, title="Infraction Type"):
         )
         if self.type == "add":
             view = NoThanks()
-            view.add_item(InfractionTypesAction(self.author, self.name.value))
+            view.add_item(InfractionTypesAction(self.author, Value))
             return await interaction.edit_original_response(
                 content=f"{tick} **{interaction.user.display_name}**, Do you want to add extra stuff to this infraction type?",
                 view=view,
             )
         elif self.type == "edit":
-            if self.name.value not in config["Infraction"].get("types", []):
+            if Value not in config["Infraction"].get("types", []):
                 embed = discord.Embed(
                     description=f"{redx} **{interaction.user.display_name},** there isn't an infraction type named this.",
                     color=discord.Colour.brand_red(),
                 )
                 return await interaction.followup.send(embed=embed, ephemeral=True)
             view = Done()
-            view.add_item(InfractionTypesAction(self.author, self.name.value))
+            view.add_item(InfractionTypesAction(self.author, Value))
             return await interaction.edit_original_response(
                 content=f"{tick} **{interaction.user.display_name}**, you are now editing the infraction type.",
                 view=view,
@@ -889,9 +932,7 @@ class WebhookToggle(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
-            return await interaction.followup.send(
-                embed=NotYourPanel(), ephemeral=True
-            )
+            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
 
         Config = await interaction.client.config.find_one({"_id": interaction.guild.id})
         if not Config:
@@ -956,13 +997,9 @@ class WebhookDesign(discord.ui.Modal):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
 
-            return await interaction.followup.send(
-                embed=NotYourPanel(), ephemeral=True
-            )
+            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
         if not await premium(interaction.guild.id):
-            return await interaction.followup.send(
-                embed=NoPremium(), view=Support()
-            )
+            return await interaction.followup.send(embed=NoPremium(), view=Support())
         Config = await interaction.client.config.find_one({"_id": interaction.guild.id})
         if Config is None:
             Config = {"_id": interaction.guild.id, "Infraction": {"Webhook": {}}}
@@ -1014,9 +1051,7 @@ class LogChannel(discord.ui.ChannelSelect):
     async def callback(self, interaction):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
-            return await interaction.followup.send(
-                embed=NotYourPanel(), ephemeral=True
-            )
+            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
 
         config = await interaction.client.config.find_one({"_id": interaction.guild.id})
         if self.values:
@@ -1092,6 +1127,7 @@ class InfractionTypesAction(discord.ui.Select):
                 ),
                 ephemeral=True,
             )
+        config = await interaction.client.config.find_one({"_id": interaction.guild.id})
         from utils.roblox import GroupRoles
 
         view = discord.ui.View()
@@ -1106,7 +1142,16 @@ class InfractionTypesAction(discord.ui.Select):
 
         option = self.values[0]
         if option == "Escalate":
-            await interaction.response.send_modal(Escalate(self.name))
+            options = []
+            Types = config.get("Infraction", {}).get("types")
+            if Types:
+                seen = set()
+                options = []
+                for t in Types:
+                    if t not in seen:
+                        options.append(discord.SelectOption(label=t, value=t))
+                        seen.add(t)
+            await interaction.response.send_modal(Escalate(self.name, types=options))
             return
         elif option == "Change Group Role":
             await interaction.response.defer()
@@ -1182,21 +1227,28 @@ class Done(discord.ui.View):
 
 
 class Escalate(discord.ui.Modal, title="Escalate"):
-    def __init__(self, type: str):
+    def __init__(self, type: str, types: list[discord.SelectOption]):
         super().__init__()
-        self.threshold = discord.ui.TextInput(
-            label="Threshold",
-            placeholder="Number of infractions with this type needed before escalating",
+        self.threshold = discord.ui.Label(
+            text="Threshold",
+            description="Number of infractions with this type needed before escalating",
+            component=discord.ui.TextInput(style=discord.TextStyle.short, max_length=4),
         )
-        self.nexttype = discord.ui.TextInput(
-            label="Escalated To",
-            placeholder="What type is added after reaching the threshold",
+        self.nextype = discord.ui.Label(
+            text="Escalated To",
+            description="What type is added after reaching the threshold",
+            component=discord.ui.Select(
+                options=types,
+                disabled=True if types is None or len(types) == 0 else False,
+            ),
         )
         self.add_item(self.threshold)
-        self.add_item(self.nexttype)
+        self.add_item(self.nextype)
         self.type = type
 
     async def on_submit(self, interaction: discord.Interaction):
+        assert isinstance(self.nextype.component, discord.ui.Select)
+        assert isinstance(self.threshold.component, discord.ui.TextInput)
         Result = await interaction.client.db["infractiontypeactions"].find_one(
             {"guild_id": interaction.guild.id, "name": self.type}
         )
@@ -1206,8 +1258,13 @@ class Escalate(discord.ui.Modal, title="Escalate"):
         if not Result.get("Escalation"):
             Result.update({"Escalation": {}})
 
-        Result["Escalation"]["Threshold"] = self.threshold.value
-        Result["Escalation"]["Next Type"] = self.nexttype.value
+        if self.nexttype == self.type:
+            return await interaction.response.send_message(
+                f"**{interaction.user.display_name},**"
+            )
+
+        Result["Escalation"]["Threshold"] = self.threshold.component.value
+        Result["Escalation"]["Next Type"] = self.nextype.component.values[0]
         if "_id" in Result:
             del Result["_id"]
         await interaction.client.db["infractiontypeactions"].update_one(
