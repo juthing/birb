@@ -609,7 +609,7 @@ class Infractions(commands.Cog):
 
 class InfractionMultiple(discord.ui.UserSelect):
     def __init__(self, action, reason, notes, expiration, anonymous):
-        super().__init__(placeholder="Members", max_values=10, min_values=1)
+        super().__init__(placeholder="Members", max_values=25, min_values=1)
         self.action = action
         self.reason = reason
         self.notes = notes

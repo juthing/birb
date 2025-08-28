@@ -355,7 +355,6 @@ class Select(discord.ui.Select):
                 icon_url="https://cdn.discordapp.com/emojis/1298665792950374410.webp?size=96&quality=lossless",
             )
             embed.description = "Select why you are opening this modmail below."
-            print("here 2")
             await interaction.edit_original_response(view=view, embed=embed)
         else:
             try:

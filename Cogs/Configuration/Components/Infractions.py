@@ -842,7 +842,7 @@ class RequiredRoles(discord.ui.RoleSelect):
     def __init__(self, author: discord.Member, type: str):
         super().__init__(
             placeholder="Select Required Roles",
-            max_values=10,
+            max_values=25,
         )
         self.author = author
         self.Ty = type
@@ -1254,7 +1254,7 @@ class TypeChannel(discord.ui.ChannelSelect):
 
 class RemoveRoles(discord.ui.RoleSelect):
     def __init__(self, author, name):
-        super().__init__(placeholder="Select Removed Roles", max_values=10)
+        super().__init__(placeholder="Select Removed Roles", max_values=25)
         self.author, self.name = author, name
 
     async def callback(self, interaction: discord.Interaction):
@@ -1282,7 +1282,7 @@ class RemoveRoles(discord.ui.RoleSelect):
 
 class GiveRoles(discord.ui.RoleSelect):
     def __init__(self, author, name):
-        super().__init__(placeholder="Select Given Roles", max_values=10)
+        super().__init__(placeholder="Select Given Roles", max_values=25)
         self.author, self.name = author, name
 
     async def callback(self, interaction: discord.Interaction):

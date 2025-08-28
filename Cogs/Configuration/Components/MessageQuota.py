@@ -123,7 +123,7 @@ class QuotaOptions(discord.ui.Select):
 class IgnoredChannels(discord.ui.ChannelSelect):
     def __init__(self, author: discord.Member, default: list = None, message=None):
         super().__init__(
-            max_values=10,
+            max_values=25,
             channel_types=[discord.ChannelType.text, discord.ChannelType.news],
         )
         self.author = author

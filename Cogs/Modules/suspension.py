@@ -229,7 +229,7 @@ class Suspensions(commands.Cog):
 
 class Suspension(discord.ui.RoleSelect):
     def __init__(self, user, author, reason, end_time, start_time, notes):
-        super().__init__(placeholder="Removed Roles", max_values=10)
+        super().__init__(placeholder="Removed Roles", max_values=25)
         self.user = user
         self.author = author
         self.reason = reason
