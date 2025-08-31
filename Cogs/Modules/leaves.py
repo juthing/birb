@@ -664,7 +664,7 @@ class LOAManage(discord.ui.View):
             LOA.get("_id"),
         )
         interaction.client.dispatch(
-            "leave_log", LOA.get("_id"), "ForceEnd", interaction.user.id
+            "leave_log", LOA.get("_id"), "ForceEnd", interaction.user
         )
 
         await interaction.edit_original_response(
