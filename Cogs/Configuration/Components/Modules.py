@@ -191,6 +191,8 @@ class ModuleToggle(discord.ui.Select):
             placeholder="Modules",
             options=options,
             min_values=0,
+            required=False,
+        
             max_values=len(options),
         )
 

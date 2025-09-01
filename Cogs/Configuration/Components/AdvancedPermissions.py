@@ -198,6 +198,7 @@ class RemoveCommands(discord.ui.Select):
     def __init__(self, author: discord.Member, commands: list):
         super().__init__(
             min_values=0,
+            required=False,
             max_values=len(commands),
             options=[
                 discord.SelectOption(
@@ -241,6 +242,7 @@ class Commands(discord.ui.Select):
         super().__init__(
             placeholder="Select Commands",
             min_values=0,
+            required=False,
             max_values=min(len(commands), 25),
             options=commands[:25],
         )
@@ -330,7 +332,8 @@ class RoleSelect(discord.ui.RoleSelect):
     def __init__(
         self, author: discord.Member, interaction: discord.Interaction, commands: list
     ):
-        super().__init__(placeholder="Select Roles", min_values=0, max_values=25)
+        super().__init__(placeholder="Select Roles", min_values=0,
+            required=False, max_values=25)
         self.author = author
         self.interaction = interaction
         self.commands = commands
