@@ -13,8 +13,7 @@ class PermissionsDropdown(discord.ui.Select):
                 discord.SelectOption(
                     label="Manage Permissions",
                     value="Manage Permissions",
-                    emoji="<:Permissions:1207365901956026368>"
-                
+                    emoji="<:Permissions:1207365901956026368>",
                 )
             ],
         )
@@ -72,9 +71,7 @@ class PermissionsDropdown(discord.ui.Select):
         for item in manage.children:
             view.add_item(item)
 
-        await interaction.followup.send(
-            embed=embeds[0], view=view, ephemeral=True
-        )
+        await interaction.followup.send(embed=embeds[0], view=view, ephemeral=True)
 
 
 class ManagePermissions(discord.ui.View):
@@ -90,7 +87,6 @@ class ManagePermissions(discord.ui.View):
         if interaction.user.id != self.author.id:
 
             return await interaction.followup.send(embed=embed, ephemeral=True)
-        
 
         InvalidCommands = [
             "botinfo",
@@ -173,10 +169,7 @@ class ManagePermissions(discord.ui.View):
     async def Remove(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
-            return await interaction.followup.send(
-                embed=NotYourPanel(), ephemeral=True
-            )
-        
+            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
 
         config = await interaction.client.config.find_one({"_id": interaction.guild.id})
         if config is None or "Advanced Permissions" not in config:
@@ -214,15 +207,14 @@ class RemoveCommands(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
-            return await interaction.followup.send(
-                embed=NotYourPanel(), ephemeral=True
-            )
-        
+            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
+
         config = await interaction.client.config.find_one({"_id": interaction.guild.id})
 
         if config is None or "Advanced Permissions" not in config:
             return await interaction.followup.send(
-                content=f"{no} **{interaction.user.display_name}**, there are no advanced permissions set.", ephemeral=True
+                content=f"{no} **{interaction.user.display_name}**, there are no advanced permissions set.",
+                ephemeral=True,
             )
         for command in self.values:
             if command in config["Advanced Permissions"]:
@@ -332,8 +324,7 @@ class RoleSelect(discord.ui.RoleSelect):
     def __init__(
         self, author: discord.Member, interaction: discord.Interaction, commands: list
     ):
-        super().__init__(placeholder="Select Roles", min_values=0,
-            required=False, max_values=25)
+        super().__init__(placeholder="Select Roles", min_values=0, max_values=25)
         self.author = author
         self.interaction = interaction
         self.commands = commands
@@ -341,9 +332,7 @@ class RoleSelect(discord.ui.RoleSelect):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
-            return await interaction.followup.send(
-                embed=NotYourPanel(), ephemeral=True
-            )
+            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
 
         config = await interaction.client.config.find_one({"_id": interaction.guild.id})
 
