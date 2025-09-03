@@ -839,7 +839,7 @@ class EmbedSelection(discord.ui.Select):
 
 class MultiToSingle(discord.ui.Select):
     def __init__(self, author: discord.Member, name: str, options: list):
-        super().__init__(options=options[:25], max_values=len(options), min_values=0)
+        super().__init__(options=options[:25], max_values=len(options), min_values=0, required=False)
         self.name = name
         self.author = author
 
