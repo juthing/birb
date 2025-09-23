@@ -1307,7 +1307,7 @@ class Image(discord.ui.Modal, title="Image"):
         org = self.Thumbnaile.value.strip() if self.Thumbnaile.value else None
         url = org
 
-        if org in ["{author.avatar}", "{staff.avatar}, {image}"]:
+        if org in ["{author.avatar}", "{staff.avatar}", "{image}"]:
             url = str(interaction.user.display_avatar.url)
 
         try:
