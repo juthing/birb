@@ -157,7 +157,7 @@ class Modmail(commands.Cog):
             {"guild_id": ctx.guild.id, "name": name, "content": content}
         )
         await ctx.send(
-            f"{tick} **{ctx.author.display_name}**, I've created the snippet succesfully!",
+            f"{tick} **{ctx.author.display_name}**, I've created the snippet successfully!",
         )
 
     @snippets.command(description="Delete a modmail snippet")
@@ -179,7 +179,7 @@ class Modmail(commands.Cog):
             {"guild_id": ctx.guild.id, "name": name}
         )
         await ctx.send(
-            f"{tick} **{ctx.author.display_name}**, I've deleted the snippet succesfully!",
+            f"{tick} **{ctx.author.display_name}**, I've deleted the snippet successfully!",
         )
 
     @snippets.command(description="Edit a modmail snippet")
@@ -203,7 +203,7 @@ class Modmail(commands.Cog):
             {"guild_id": ctx.guild.id, "name": name}, {"$set": {"content": content}}
         )
         await ctx.send(
-            f"{tick} **{ctx.author.display_name}**, I've edited the snippet succesfully!",
+            f"{tick} **{ctx.author.display_name}**, I've edited the snippet successfully!",
         )
 
     @snippets.command(description="Send a modmail snippet in a modmail")

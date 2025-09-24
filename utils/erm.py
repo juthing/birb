@@ -26,7 +26,7 @@ async def voidShift(api_key=None, guild=None, user=None):
             ) as response:
                 response.raise_for_status()
                 result = await response.text()
-                print("[ERM] Succesfully voided a shift.")
+                print("[ERM] successfully voided a shift.")
                 return result
     except Exception as e:
         print(e)

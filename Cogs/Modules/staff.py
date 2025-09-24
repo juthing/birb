@@ -1436,7 +1436,7 @@ class InfractionTypeSelection(discord.ui.Select):
 
         await interaction.edit_original_response(
             embed=None,
-            content=f"{tick} **{interaction.user.display_name},** succesfully punished all the failures.",
+            content=f"{tick} **{interaction.user.display_name},** successfully punished all the failures.",
             view=None,
         )
 

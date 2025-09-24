@@ -910,7 +910,7 @@ class RequiredRoles(discord.ui.RoleSelect):
             upsert=True,
         )
         await interaction.edit_original_response(
-            content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+            content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
             view=None,
         )
 
@@ -1197,7 +1197,7 @@ class InfractionTypesAction(discord.ui.Select):
                 upsert=True,
             )
             await interaction.edit_original_response(
-                content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+                content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
                 view=None,
             )
 
@@ -1221,7 +1221,7 @@ class Done(discord.ui.View):
                     ephemeral=True,
                 )
             await interaction.edit_original_response(
-                content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+                content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
                 view=None,
             )
 
@@ -1234,7 +1234,7 @@ class Escalate(discord.ui.Modal, title="Escalate"):
             description="Number of infractions with this type needed before escalating",
             component=discord.ui.TextInput(style=discord.TextStyle.short, max_length=4),
         )
-        self.nextype = discord.ui.Label(
+        self.NextType = discord.ui.Label(
             text="Escalated To",
             description="What type is added after reaching the threshold",
             component=discord.ui.Select(
@@ -1243,11 +1243,11 @@ class Escalate(discord.ui.Modal, title="Escalate"):
             ),
         )
         self.add_item(self.threshold)
-        self.add_item(self.nextype)
+        self.add_item(self.NextType)
         self.type = type
 
     async def on_submit(self, interaction: discord.Interaction):
-        assert isinstance(self.nextype.component, discord.ui.Select)
+        assert isinstance(self.NextType.component, discord.ui.Select)
         assert isinstance(self.threshold.component, discord.ui.TextInput)
         Result = await interaction.client.db["infractiontypeactions"].find_one(
             {"guild_id": interaction.guild.id, "name": self.type}
@@ -1257,14 +1257,14 @@ class Escalate(discord.ui.Modal, title="Escalate"):
 
         if not Result.get("Escalation"):
             Result.update({"Escalation": {}})
-
-        if self.nexttype == self.type:
+        NextType = self.NextType.component.values[0]
+        if NextType == self.type:
             return await interaction.response.send_message(
-                f"**{interaction.user.display_name},**"
+                f"**{interaction.user.display_name},** you can't set the next type to the type you are editing."
             )
 
         Result["Escalation"]["Threshold"] = self.threshold.component.value
-        Result["Escalation"]["Next Type"] = self.nextype.component.values[0]
+        Result["Escalation"]["Next Type"] = NextType
         if "_id" in Result:
             del Result["_id"]
         await interaction.client.db["infractiontypeactions"].update_one(
@@ -1273,7 +1273,7 @@ class Escalate(discord.ui.Modal, title="Escalate"):
             upsert=True,
         )
         await interaction.response.edit_message(
-            content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+            content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
             view=None,
         )
 
@@ -1304,7 +1304,7 @@ class TypeChannel(discord.ui.ChannelSelect):
             upsert=True,
         )
         await interaction.edit_original_response(
-            content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+            content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
             view=None,
         )
 
@@ -1332,7 +1332,7 @@ class RemoveRoles(discord.ui.RoleSelect):
             upsert=True,
         )
         await interaction.edit_original_response(
-            content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+            content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
             view=None,
         )
 
@@ -1360,7 +1360,7 @@ class GiveRoles(discord.ui.RoleSelect):
             upsert=True,
         )
         await interaction.edit_original_response(
-            content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+            content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
             view=None,
         )
 
@@ -1390,7 +1390,7 @@ class ChangeGroupRole(discord.ui.Select):
             upsert=True,
         )
         await interaction.edit_original_response(
-            content=f"{tick} **{interaction.user.display_name},** succesfully updated infraction type.",
+            content=f"{tick} **{interaction.user.display_name},** successfully updated infraction type.",
             view=None,
         )
 

@@ -133,7 +133,7 @@ class EnterGroup(discord.ui.Modal):
             {"_id": interaction.guild.id}, {"$set": config}, upsert=True
         )
         await interaction.edit_original_response(
-            content=f"{tick} **{interaction.user.display_name}**, group succesfully linked.",
+            content=f"{tick} **{interaction.user.display_name}**, group successfullyy linked.",
             view=None,
         )
 

@@ -92,7 +92,7 @@ class suggestions(commands.Cog):
         )
         self.client.dispatch("suggestion", result.inserted_id, Config)
         await msg.edit(
-            content=f"{tick} **{ctx.author.display_name},** succesfully submitted suggestion."
+            content=f"{tick} **{ctx.author.display_name},** successfully submitted suggestion."
         )
 
 

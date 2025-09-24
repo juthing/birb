@@ -572,7 +572,7 @@ class LOAManage(discord.ui.View):
             )
 
         await interaction.response.edit_message(
-            content=f"{tick} **{interaction.user.display_name},** succesfully cancelled the leave request.",
+            content=f"{tick} **{interaction.user.display_name},** successfully cancelled the leave request.",
             view=None,
             embed=None,
         )

@@ -472,12 +472,14 @@ class APIRoutes:
         if not guild:
             raise HTTPException(status_code=404, detail="Server not found")
 
-        body = {k.lower(): v for k, v in body.items()}
-
+        print("Before unstringify:", body)
         if unstringify:
             body = self.unstringify_dict(body)
-
-        await self.config.update_one({"_id": server}, {"$set": body}, upsert=True)
+        print("After unstringify:", body)
+        print(server)
+        await config.update_one({"_id": int(server)}, {"$set": body}, upsert=True)
+        c = await config.find_one({"_id": int(server)})
+        print(c)
         return {"status": "success"}
 
     async def GET_search(self, auth: str, server: int, user: int):
@@ -935,30 +937,21 @@ class APIRoutes:
     def GET_status(self):
         return {"status": "Connected", "uptime": self.Uptime.timestamp()}
         
-    def unstringify_dict(self, d):
-        if isinstance(d, dict):
-            for key, value in d.items():
-                if isinstance(value, str):
-                    if value.isdigit():
-                        d[key] = int(value)
-                    else:
-                        try:
-                            d[key] = ast.literal_eval(value)
-                        except (ValueError, SyntaxError):
-                            pass
-                elif isinstance(value, list):
-                    d[key] = [
-                        self.unstringify_dict(item) if isinstance(item, dict) else (
-                            int(item) if isinstance(item, str) and item.isdigit() else (
-                                ast.literal_eval(item) if isinstance(item, str) else item
-                            )
-                        )
-                        for item in value
-                    ]
-                elif isinstance(value, dict):
-                    self.unstringify_dict(value)
-        return d
+    def safe_literal_eval(self, item):
+        try:
+            return ast.literal_eval(item)
+        except (ValueError, SyntaxError):
+            return item  
 
+    def unstringify_dict(self, d):
+        for key, value in d.items():
+            if isinstance(value, dict):
+                d[key] = self.unstringify_dict(value)
+            elif isinstance(value, list):
+                d[key] = [self.safe_literal_eval(v) if isinstance(v, str) else v for v in value]
+            elif isinstance(value, str):
+                d[key] = self.safe_literal_eval(value)
+        return d
 
 class APICog(commands.Cog):
     def __init__(self, client: discord.Client):

@@ -801,7 +801,7 @@ async def FinalFunction(interaction: discord.Interaction, d={}):
     
 
     await interaction.response.send_message(
-        content=f"{tick} **{interaction.user.display_name}**, succesfully updated `{d.get('option')}` embed.",
+        content=f"{tick} **{interaction.user.display_name}**, successfully updated `{d.get('option')}` embed.",
         embed=None,
         ephemeral=True
     )
@@ -852,7 +852,7 @@ class MultiToSingle(discord.ui.Select):
             {"$set": {"Panels": self.values}},
         )
         return await interaction.response.edit_message(
-            content=f"{tick} **{interaction.user.display_name},** I've succesfully updated the connected panels.",
+            content=f"{tick} **{interaction.user.display_name},** I've successfully updated the connected panels.",
             embed=None,
             view=None,
         )

@@ -1015,7 +1015,7 @@ class Buttons(discord.ui.Select):
                     }
                 )
                 await interaction.edit_original_response(
-                    content=f"{tick} **@{interaction.user.name}** I've succesfully added voting buttons. (This doesn't support other button types)",
+                    content=f"{tick} **@{interaction.user.name}** I've successfully added voting buttons. (This doesn't support other button types)",
                     view=None,
                     embed=None,
                 )
@@ -1435,7 +1435,7 @@ class EraseButtons(discord.ui.Select):
             c for c in self.data["components"] if c.get("ix") != Selected
         ]
         await interaction.response.edit_message(
-            content=f"{tick} succesfully removed component.", view=None, embed=None
+            content=f"{tick} successfully removed component.", view=None, embed=None
         )
 
 

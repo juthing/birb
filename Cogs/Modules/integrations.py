@@ -307,7 +307,7 @@ class Link(commands.Cog):
                 ephemeral=True,
             )
         await ctx.send(
-            f"{tick} **{ctx.author.name},** succesfully updated members role."
+            f"{tick} **{ctx.author.name},** successfully updated members role."
         )
 
     @integrations.command(

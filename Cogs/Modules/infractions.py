@@ -407,7 +407,7 @@ class Infractions(commands.Cog):
                 "infraction_approval", InfractionResult.inserted_id, Config
             )
             return await msg.edit(
-                content=f"{tick} **{ctx.author.display_name},** I've succesfully sent the infraction to approval.",
+                content=f"{tick} **{ctx.author.display_name},** I've successfully sent the infraction to approval.",
                 embed=None,
                 view=None,
             )
