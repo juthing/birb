@@ -1102,11 +1102,6 @@ class InfractionTypesAction(discord.ui.Select):
                 label="Escalate", emoji="<:escalate:1340246894013841440>"
             ),
             discord.SelectOption(
-                label="Void Shift",
-                emoji="<:erm:1203823601107861504>",
-                description="Requires ERM API",
-            ),
-            discord.SelectOption(
                 label="Change Group Role", emoji="<:robloxWhite:1200584000390053899>"
             ),
         ]

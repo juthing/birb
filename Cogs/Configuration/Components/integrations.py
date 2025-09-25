@@ -1,7 +1,7 @@
 import discord
-from utils.erm import GetIdentifier
 from utils.emojis import *
 from utils.HelpEmbeds import NotYourPanel
+
 
 class Integrations(discord.ui.Select):
     def __init__(self, author: discord.Member):
@@ -9,11 +9,7 @@ class Integrations(discord.ui.Select):
             options=[
                 discord.SelectOption(
                     label="Roblox Groups", emoji="<:robloxWhite:1200584000390053899>"
-                ),
-                discord.SelectOption(
-                    label="ERM",
-                    emoji="<:erm:1203823601107861504>",
-                ),
+                )
             ]
         )
         self.author = author
@@ -22,31 +18,7 @@ class Integrations(discord.ui.Select):
         await interaction.response.defer()
         if interaction.user.id != self.author.id:
             return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
-        if self.values[0] == "ERM":
-
-            code = await GetIdentifier()
-            result = await interaction.client.db['integrations'].find_one(
-                {"server": interaction.guild.id, "erm": {"$exists": True}}
-            )
-            if result and result.get("erm", None):
-                code = result.get("erm")
-            embed = discord.Embed(
-                title="<:erm:1203823601107861504> ERM API Integration",
-                color=discord.Colour.brand_red(),
-                description=(
-                    "To complete the integration with ERM, please authorize the application by clicking the 'Authorize' button below. "
-                    "Once you have authorized, press the 'Done' button to finalize the integration. "
-                    "If you encounter any issues, refer to the [documentation](https://docs.astrobirb.dev/) for assistance."
-                ),
-            )
-
-            view = KeyButton(
-                interaction.user,
-                f"https://discord.com/oauth2/authorize?client_id=1090291300881932378&redirect_uri=https%3A%2F%2Fapi.ermbot.xyz%2Fapi%2FAuth%2FCallback&response_type=code&scope=identify%20guilds&prompt=none&state={code}",
-                code,
-            )
-            await interaction.followup.send(embed=embed, view=view, ephemeral=True)
-        elif self.values[0] == "Roblox Groups":
+        if self.values[0] == "Roblox Groups":
             from utils.roblox import GetValidToken
             from utils.HelpEmbeds import NotRobloxLinked
 
@@ -73,7 +45,9 @@ class GroupOptions(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user.id != self.author.id:
-            return await interaction.response.send_message(embed=NotYourPanel(), ephemeral=True)
+            return await interaction.response.send_message(
+                embed=NotYourPanel(), ephemeral=True
+            )
 
         modal = EnterGroup(self.author)
         await interaction.response.send_modal(modal)
@@ -103,7 +77,7 @@ class EnterGroup(discord.ui.Modal):
         from utils.HelpEmbeds import NotRobloxLinked
 
         group = await GetGroup2(self.group_id.value, interaction.user)
-        if not group or not group.get('owner'):
+        if not group or not group.get("owner"):
             return await interaction.edit_original_response(
                 content=f"{crisis} **{interaction.user.display_name},** I couldn't find the roblox group from your account.",
                 view=None,
@@ -138,39 +112,6 @@ class EnterGroup(discord.ui.Modal):
         )
 
 
-class KeyButton(discord.ui.View):
-    def __init__(self, author, link, key):
-        super().__init__(timeout=None)
-        self.author = author
-        self.add_item(
-            discord.ui.Button(
-                label="Authorise", style=discord.ButtonStyle.link, url=link
-            )
-        )
-        self.key = key
-
-    @discord.ui.button(
-        label="Done",
-        style=discord.ButtonStyle.green,
-        emoji="<:Permissions:1207365901956026368>",
-    )
-    async def apikey(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        if interaction.user.id != self.author.id:
-
-            return await interaction.followup.send(embed=NotYourPanel(), ephemeral=True)
-        await interaction.client.db['integrations'].update_one(
-            {"server": interaction.guild.id},
-            {"$set": {"erm": self.key}},
-            upsert=True,
-        )
-        embed = discord.Embed(
-            description=f"{greencheck} **API Key has been successfully updated!**",
-            color=discord.Colour.brand_green(),
-        )
-        await interaction.edit_original_response(embed=embed, view=None)
-
-
 async def integrationsEmbed(interaction: discord.Interaction, embed: discord.Embed):
     embed.set_author(name=f"{interaction.guild.name}", icon_url=interaction.guild.icon)
     embed.set_thumbnail(url=interaction.guild.icon)
@@ -180,13 +121,13 @@ async def integrationsEmbed(interaction: discord.Interaction, embed: discord.Emb
     )
     config = await interaction.client.config.find_one({"_id": interaction.guild.id})
 
-    ERM = await interaction.client.db['integrations'].find_one(
+    ERM = await interaction.client.db["integrations"].find_one(
         {"server": int(interaction.guild.id), "erm": {"$exists": True}}
     )
     Groups = config.get("groups", {}).get("id", None) if config else None
     embed.add_field(
         name="<:link:1206670134064717904> Integrations",
-        value=f"> **Groups**: {'Linked' if Groups else 'Unlinked'}\n> **ERM:** {'Linked' if ERM else 'Unlinked'}",
+        value=f"> **Groups**: {'Linked' if Groups else 'Unlinked'}",
         inline=False,
     )
     embed.add_field(

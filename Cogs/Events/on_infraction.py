@@ -4,7 +4,6 @@ import os
 from bson import ObjectId
 import aiohttp
 import logging
-from utils.erm import voidShift
 import asyncio
 import datetime
 from utils.permissions import premium
@@ -427,18 +426,6 @@ class on_infractions(commands.Cog):
                 except (discord.Forbidden, discord.HTTPException):
                     pass
                 Actions["RemovedRoles"] = [role.id for role in roles]
-            if data.get("voidshift"):
-                result = await self.client.db["integrations"].find_one(
-                    {"server": staff.guild.id, "erm": {"$exists": True}}
-                )
-                if result:
-                    result = await voidShift(
-                        result.get("erm", None), staff.guild.id, staff.id
-                    )
-                    if not result:
-                        pass
-                Actions["VoidedShift"] = True
-
             if data.get("staffdatabaseremoval", False) is True:
                 OriginalData = await self.client.db["staff database"].find_one(
                     {"staff_id": staff.id, "guild_id": staff.guild.id}
