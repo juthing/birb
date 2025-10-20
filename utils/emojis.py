@@ -27,8 +27,8 @@ if os.getenv('ENVIRONMENT') == 'custom':
     loa = ""
     redxbox = ""    
 else:
-    tick = "<:whitecheck:1223062421212631211>"
-    no = "<:whitex:1190819175447408681>"
+    tick = "<:check:1429874117267427369>"
+    no = "<:close:1429874759360843979>"
     Warning = "<:Allonswarning:1123286604849631355>"
     Settings = "<:Setting:1223062944187813918>"
     folder = "<:folder:1235296135728594965>"

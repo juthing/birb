@@ -904,7 +904,7 @@ class FormalReview(discord.ui.Modal):
                 label="Reviewed",
                 style=discord.ButtonStyle.success,
                 disabled=True,
-                emoji="<:whitecheck:1190819388941668362>",
+                emoji="<:check:1429874117267427369>",
             )
         )
         await interaction.response.edit_message(view=view)

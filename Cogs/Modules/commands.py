@@ -206,7 +206,7 @@ class CustomCommands(commands.Cog):
                     upsert=True,
                 )
                 await ctx.send(
-                    f"<:whitecheck:1190819388941668362> **{ctx.author.display_name},** I've set the prefix to `{prefix}`",
+                    f"<:check:1429874117267427369> **{ctx.author.display_name},** I've set the prefix to `{prefix}`",
                 )
             else:
                 await ctx.send(
@@ -301,7 +301,7 @@ class Voting(discord.ui.View):
     @discord.ui.button(
         label="0",
         style=discord.ButtonStyle.green,
-        emoji="<:whitecheck:1223062421212631211>",
+        emoji="<:check:1429874117267427369>",
         custom_id="vote",
     )
     async def upvote(self, interaction: discord.Interaction, button: discord.ui.Button):
